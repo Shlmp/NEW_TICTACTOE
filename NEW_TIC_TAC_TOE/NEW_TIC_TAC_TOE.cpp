@@ -21,35 +21,45 @@ char opponent(char& player);
 char askYesNo(string question);
 char winner(const vector<char>& board);
 int askNumber(string question, int high, int low);
+void displayBoard(vector<char>& board);
+void playerMove(vector<char>& board, char player);
+bool isLegal(vector<char>& board, int move);
 
 int main()
 {
     char player = playerSymbol();
     char computer = opponent(player);
     instructions();
+    char turn = X;
+    vector<char> boardCopy = board;
 
     while (winner(board) == NO_ONE)
     {
+        if (turn == player)
+        {
+            playerMove(boardCopy, player);
+        }
+        displayBoard(boardCopy);
         cout << "Player - " << player << "    AI - " << computer;
-        char turn = X;
     }
 }
 
 void instructions()
 {
+    //system("cls");
     cout << "Welcome to Tic-Tac-Toe\nChoose a space between 0 - 8\n";
-    //cout << "0 | 1 | 2\n";
-    //cout << "3 | 4 | 5\n";
-    //cout << "6 | 7 | 8\n";
-    for (int i = 0; i < 3; i++)
-    {
-        for (int j = 0; j < 3; j++)
-        {
-            cout << board[j];
-            if (j < 2) cout << " |";
-        }
-        cout << endl;
-    }
+    cout << "0 | 1 | 2\n";
+    cout << "3 | 4 | 5\n";
+    cout << "6 | 7 | 8\n";
+    //for (int i = 0; i < 3; i++)
+    //{
+    //    for (int j = 0; j < 3; j++)
+    //    {
+    //        cout << board[j];
+    //        if (j < 2) cout << " |";
+    //    }
+    //    cout << endl;
+    //}
 }
 
 char playerSymbol()
@@ -128,7 +138,7 @@ int askNumber(string question, int high, int low)
 
     do
     {
-        cout << question << "entre " << low << " y " << high << endl;
+        cout << question << "between " << low << " & " << high << endl;
         getline(cin, input);
 
         for (char c : input)
@@ -161,4 +171,31 @@ int askNumber(string question, int high, int low)
         }
     } while (!isValid || input.empty() || !isRangeValid);
     return number;
+}
+
+void displayBoard(vector<char>& board)
+{
+    cout << *(board.begin() + 0) << " | " << *(board.begin() + 1) << " | " << *(board.begin() + 2) << endl
+         << *(board.begin() + 3) << " | " << *(board.begin() + 4) << " | " << *(board.begin() + 5) << endl
+         << *(board.begin() + 6) << " | " << *(board.begin() + 7) << " | " << *(board.begin() + 8) << endl;
+}
+
+void playerMove(vector<char>& board, char player)
+{
+    int number = 0;
+    do
+    {
+        number = askNumber("Choose the space you want to use", 8, 0);
+    } while (!isLegal(board, number));
+    *(board.begin() + number) = player;
+}
+
+bool isLegal(vector<char>& board, int move)
+{
+    if (*(board.begin() + move) == X || *(board.begin() + move) == O)
+    {
+        cout << "Space already in use\n";
+        return false;
+    }
+    return true;
 }
