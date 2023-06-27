@@ -20,10 +20,10 @@ char playerSymbol();
 char opponent(char& player);
 string askYesNo(string question);
 char winner(const vector<char>& board);
-int askNumber(string question, int high, int low);
+int askNumber(string question, int high);
 void displayBoard(vector<char>& board);
-void playerMove(vector<char>& board, char player);
-bool isLegal(vector<char>& board, int move);
+int playerMove(const vector<char>& board, char player);
+bool isLegal(int move, const vector<char>& board);
 
 int main()
 {
@@ -150,7 +150,7 @@ char winner(const vector<char>& board)
     return NO_ONE;
 }
 
-int askNumber(string question, int high, int low)
+int askNumber(string question, int high)
 {
     string input;
     bool isValid = false;
@@ -161,7 +161,7 @@ int askNumber(string question, int high, int low)
 
     do
     {
-        cout << question << " between " << low << " & " << high << endl;
+        cout << question << " between " << 0 << " & " << high << endl;
         getline(cin, input);
 
         for (char c : input)
@@ -185,7 +185,7 @@ int askNumber(string question, int high, int low)
         else
         {
             number = stoi(input);
-            isRangeValid = number <= high && number >= low;
+            isRangeValid = number <= high && number >= 0;
         }
 
         if (!isRangeValid && isValid)
@@ -203,22 +203,66 @@ void displayBoard(vector<char>& board)
         << *(board.begin() + 6) << " | " << *(board.begin() + 7) << " | " << *(board.begin() + 8) << endl;
 }
 
-void playerMove(vector<char>& board, char player)
+int playerMove(const vector<char>& board, char player)
 {
-    int number = 0;
-    do
+    int move = askNumber("Choose the space you want to use", (board.size() - 1));
+
+    while (!isLegal(move, board))
     {
-        number = askNumber("Choose the space you want to use", 8, 0);
-    } while (!isLegal(board, number));
-    *(board.begin() + number) = player;
+        cout << "\nSpace already in use\n";
+        move = askNumber("Choose the space you want to use", (board.size() - 1));
+    }
+
+    return move;
 }
 
-bool isLegal(vector<char>& board, int move)
+inline bool isLegal(int move, const vector<char>& board)
 {
-    if (*(board.begin() + move) == X || *(board.begin() + move) == O)
+    return (board[move] == EMPTY);
+}
+
+int computerMove(vector<char> board, char computer)
+{
+    int move = 0;
+    bool foundSpace = false;
+
+    while (!foundSpace && move < board.size())
     {
-        cout << "Space already in use\n";
-        return false;
+        if (isLegal(move, board))
+        {
+            board[move] = computer;
+            foundSpace = winner(board) == computer;
+        }
+
+        if (!foundSpace)
+        {
+            move++;
+        }
     }
-    return true;
+
+    if (!foundSpace)
+    {
+        move = 0;
+        char human = opponent(computer);
+        while (!foundSpace && move < board.size())
+        {
+            if (isLegal(move, board))
+            {
+                board[move] = human;
+                foundSpace = winner(board) == human;
+            }
+
+            if (!foundSpace)
+            {
+                move++;
+            }
+        }
+    }
+
+    if (!foundSpace)
+    {
+        move = 0;
+        unsigned int i = 0;
+        //const int BEST_MOVE = { 4, 0, 2, 6, 8, 1, 3, 5, 7 };
+    }
 }
