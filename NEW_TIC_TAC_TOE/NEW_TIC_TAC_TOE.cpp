@@ -16,15 +16,16 @@ const char EMPTY = ' ';
 const char NO_ONE = 'N';
 
 //Prototype Functions
-char winner(const vector<char>& board);
+char winner(const vector<char>* const pBoard);
+void displayBoard(const vector<char>* const pBoard);
+bool isLegal(int move, const vector<char>* const pBoard);
+int humanMove(const vector<char>* const pBoard);
+
 void instructions();
-void displayBoard(const vector<char>& board);
 char askYesNo(string question);
 char humanSymbol();
 char opponent(char symbol);
 int askNumber(string question, int high, int low = 0);
-bool isLegal(int move, const vector<char>& board);
-int humanMove(const vector<char>& board);
 int computerMove(vector<char> board, char computer);
 void announceWinner(char winner, char human, char computer);
 
@@ -44,10 +45,10 @@ int main() {
 
 	//displayBoard(board);
 
-	while (winner(board) == NO_ONE) {
+	while (winner(&board) == NO_ONE) {
 
 		if (turn == player) {
-			move = humanMove(board);
+			move = humanMove(&board);
 			board[move] = player;
 		}
 		else {
@@ -56,15 +57,15 @@ int main() {
 		}
 
 		turn = opponent(turn);
-		displayBoard(board);
+		displayBoard(&board);
 	}
 
-	announceWinner(winner(board), player, computer);
+	announceWinner(winner(&board), player, computer);
 
 }
 
 //Return the piece winner a tie or noBody
-char winner(const vector<char>& board)
+char winner(const vector<char>* const pBoard)
 {
 	//This are the posibilities to win.
 	const int WINNING_POS[8][3] = { {0, 1, 2},
@@ -81,17 +82,17 @@ char winner(const vector<char>& board)
 	//Return the winner
 	for (int row = 0; row < TOTAL_ROWS; row++)
 	{
-		if ((board[WINNING_POS[row][0]] != EMPTY) &&
-			(board[WINNING_POS[row][0]] == board[WINNING_POS[row][1]]) &&
-			(board[WINNING_POS[row][1]] == board[WINNING_POS[row][2]]))
+		if (((*pBoard)[WINNING_POS[row][0]] != EMPTY) &&
+			((*pBoard)[WINNING_POS[row][0]] == (*pBoard)[WINNING_POS[row][1]]) &&
+			((*pBoard)[WINNING_POS[row][1]] == (*pBoard)[WINNING_POS[row][2]]))
 		{
-			return board[WINNING_POS[row][0]];
+			return (*pBoard)[WINNING_POS[row][0]];
 		}
 
 	}
 
 	//Return a Tie
-	if (count(board.begin(), board.end(), EMPTY) == 0) {
+	if (count(pBoard->begin(), pBoard->end(), EMPTY) == 0) {
 		return TIE;
 	}
 
@@ -155,22 +156,22 @@ char opponent(char symbol) {
 }
 
 
-void displayBoard(const vector<char>& board) {
-	cout << "\n\t" << board[0] << " | " << board[1] << " | " << board[2];
-	cout << "\n\t" << board[3] << " | " << board[4] << " | " << board[5];
-	cout << "\n\t" << board[6] << " | " << board[7] << " | " << board[8];
+void displayBoard(const vector<char>* const pBoard) {
+	cout << "\n\t" << (*pBoard)[0] << " | " << (*pBoard)[1] << " | " << (*pBoard)[2];
+	cout << "\n\t" << (*pBoard)[3] << " | " << (*pBoard)[4] << " | " << (*pBoard)[5];
+	cout << "\n\t" << (*pBoard)[6] << " | " << (*pBoard)[7] << " | " << (*pBoard)[8];
 	cout << "\n";
 }
 
 
 
 
-inline bool isLegal(int move, const vector<char>& board) {
+inline bool isLegal(int move, const vector<char>* pBoard) {
 
 	bool isLegal = false;
 
 
-	if (board[move] == EMPTY)
+	if ((*pBoard)[move] == EMPTY)
 	{
 		isLegal = true;
 	}
@@ -182,12 +183,12 @@ inline bool isLegal(int move, const vector<char>& board) {
 }
 
 
-int humanMove(const vector<char>& board) {
-	int move = askNumber("¿Elige una posición del tablero?", (board.size() - 1));
+int humanMove(const vector<char>* const pBoard) {
+	int move = askNumber("¿Elige una posición del tablero?", (pBoard->size() - 1));
 
-	while (!isLegal(move, board)) {
+	while (!isLegal(move, pBoard)) {
 		cout << "\nEsa posición ya está ocupada humano tonto.\n";
-		move = askNumber("¿Elige una posición del tablero?", (board.size() - 1));
+		move = askNumber("¿Elige una posición del tablero?", (pBoard->size() - 1));
 	}
 
 	cout << "Bien..\n";
@@ -202,14 +203,14 @@ int computerMove(vector<char> board, char computer) {
 
 	while (!foundSpace && move < board.size()) {
 
-		if (isLegal(move, board)) {
+		if (isLegal(move, &board)) {
 
 
 			board[move] = computer;
 
-			foundSpace = winner(board) == computer;
+			foundSpace = winner(&board) == computer;
 
-			if (winner(board) == computer) {
+			if (winner(&board) == computer) {
 				foundSpace = true;
 			}
 
@@ -227,12 +228,12 @@ int computerMove(vector<char> board, char computer) {
 		char human = opponent(computer);
 		while (!foundSpace && move < board.size()) {
 
-			if (isLegal(move, board)) {
+			if (isLegal(move, &board)) {
 
 
 				board[move] = human;
 
-				foundSpace = winner(board) == human;
+				foundSpace = winner(&board) == human;
 
 				board[move] = EMPTY;
 			}
@@ -253,7 +254,7 @@ int computerMove(vector<char> board, char computer) {
 		while (!foundSpace && i < board.size()) {
 
 			move = BEST_MOVE[i];
-			if (isLegal(move, board)) {
+			if (isLegal(move, &board)) {
 				foundSpace = true;
 			}
 
